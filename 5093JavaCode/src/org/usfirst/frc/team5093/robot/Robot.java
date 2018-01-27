@@ -26,6 +26,7 @@ public class Robot extends IterativeRobot {
 	public void robotInit() {
 		//TODO;
 		//TODO2;
+		// ALGO.....
 	}
 
 	/**
