@@ -57,6 +57,7 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putData("Autonomous mode chooser", autoChooser);
 		
 		
+		
 	}
 
 	/**
@@ -68,6 +69,7 @@ public class Robot extends IterativeRobot {
 		m_timer.start();*/
 		autonomousCommand = (Command) autoChooser.getSelected();
 		autonomousCommand.start();
+		System.out.println("Autonomo: " + autonomousCommand.getClass() );
 	}
 
 	/**
