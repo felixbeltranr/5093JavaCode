@@ -68,8 +68,8 @@ public class Robot extends IterativeRobot {
 		/*m_timer.reset();
 		m_timer.start();*/
 		autonomousCommand = (Command) autoChooser.getSelected();
-		autonomousCommand.start();
 		System.out.println("Autonomo: " + autonomousCommand.getClass() );
+		autonomousCommand.start();
 	}
 
 	/**
