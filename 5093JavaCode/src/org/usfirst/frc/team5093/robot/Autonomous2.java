@@ -3,7 +3,6 @@ package org.usfirst.frc.team5093.robot;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 public class Autonomous2 extends Command {
 	private AnalogInput Ultri;
@@ -47,6 +46,34 @@ public class Autonomous2 extends Command {
 		
 		return quiza2;
 	}
-	
+	/* public Aim() {
+    	requires(Robot.turret);
+    }
 
-}
+    // Called just before this Command runs the first time
+    protected void initialize() {
+    	SetTargetAngle();
+    }
+
+    // Called repeatedly when this Command is scheduled to run
+    protected void execute() {
+    	CorrectAngle();
+ \   }
+
+    // Make this return true when this Command no longer needs to run execute()
+    protected boolean isFinished() {
+        return AtRightAngle();
+ \   }
+
+    // Called once after isFinished returns true
+    protected void end() {
+    	HoldAngle();
+    }
+
+    // Called when another command which requires one or more of the same
+    // subsystems is scheduled to run
+    protected void interrupted() {
+    	end();
+    	}*/
+	
+    }

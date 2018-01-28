@@ -10,13 +10,13 @@ package org.usfirst.frc.team5093.robot;
 //import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 //import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.DriverStation;
+//import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Spark;
 //import edu.wpi.first.wpilibj.Joystick;
 //import edu.wpi.first.wpilibj.Spark;
 //import edu.wpi.first.wpilibj.Timer;
-//import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -36,7 +36,7 @@ public class Robot extends IterativeRobot {
 //	private Gyro gyro;
 	private AnalogInput Ultri = new AnalogInput(3);
 	private DifferentialDrive m_robotDrive = new DifferentialDrive(new Spark(0), new Spark(1));
-	//private XboxController m_stick = new XboxController(0);*/
+	private XboxController m_stick = new XboxController(0);
 	//private Timer m_timer = new Timer();
 	private Command autonomousCommand;
 	SendableChooser<Command> autoChooser;
@@ -108,18 +108,22 @@ public class Robot extends IterativeRobot {
 		//m_robotDrive.arcadeDrive(m_stick.getY(), m_stick.getX());
 		//double power = m_stick.getThrottle(); -//Se mueve cn el gatillo derecho
 		//boolean cosita = m_stick.getAButton();
-		//double power = m_stick.getY();
-		/*double voltaje = Ultri.getVoltage();
-		double vmm = (293.0/30000.0);
-		double distancia = voltaje/vmm;
-		System.out.println(distancia);*/
+		double power = m_stick.getTriggerAxis(null);
+		double xAxis = m_stick.getX();
 		
+		System.out.println(xAxis);				
+		m_robotDrive.arcadeDrive(power, xAxis);
 		
-		/*if((cosita==true) || (distancia<1)) {
-			m_robotDrive.arcadeDrive(0.0, 0.0);
-		}else {
-			m_robotDrive.arcadeDrive(power, 0.0);
-		}*/
+		if (power > 0 && xAxis == 0) {
+			System.out.println("Esta avanzando al frente");
+		} if (power > 0 && xAxis > 0) {
+			System.out.println("girando a la derecha");
+		} if (power >0 && xAxis <0 ) {
+			System.out.println("girando a la izquierda");
+		} else {
+			System.out.println("El robot no se esta moviendo");
+		}
+		
 		//System.out.println(power);
 	}
 
