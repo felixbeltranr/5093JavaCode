@@ -3,6 +3,7 @@ package org.usfirst.frc.team5093.robot;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 public class Autonomous2 extends Command {
 	private AnalogInput Ultri;
@@ -12,8 +13,12 @@ public class Autonomous2 extends Command {
 	private Timer m_timer = new Timer();
 	boolean quiza2;
 	
+	public Autonomous2(AnalogInput Ultri) {
+		this.Ultri = Ultri;
+    }
+	
 	public void initialize() {
-		Ultri = new AnalogInput(3);
+		
 		m_timer.reset();
 		m_timer.start();
 		quiza2 = false;

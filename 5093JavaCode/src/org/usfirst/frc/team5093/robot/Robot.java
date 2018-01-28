@@ -12,12 +12,14 @@ package org.usfirst.frc.team5093.robot;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Spark;
 //import edu.wpi.first.wpilibj.Joystick;
 //import edu.wpi.first.wpilibj.Spark;
 //import edu.wpi.first.wpilibj.Timer;
 //import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 //import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 //import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -32,10 +34,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Robot extends IterativeRobot {
 //	private Gyro gyro;
-	//private AnalogInput Ultri;
-	/*private DifferentialDrive m_robotDrive
-			= new DifferentialDrive(new Spark(0), new Spark(1));
-	private XboxController m_stick = new XboxController(0);*/
+	private AnalogInput Ultri = new AnalogInput(3);
+	private DifferentialDrive m_robotDrive = new DifferentialDrive(new Spark(0), new Spark(1));
+	//private XboxController m_stick = new XboxController(0);*/
 	//private Timer m_timer = new Timer();
 	private Command autonomousCommand;
 	SendableChooser<Command> autoChooser;
@@ -48,11 +49,11 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void robotInit() {
 	//	gyro = new ADXRS450_Gyro();
-		//Ultri = new AnalogInput(3);
-		Auto1 = new Autonomous1();
+		
+		Auto1 = new Autonomous1(m_robotDrive);
 		autoChooser = new SendableChooser<Command>();
 		autoChooser.addDefault("Auto 1", Auto1);
-		autoChooser.addObject("Auto 2", new Autonomous2());
+		autoChooser.addObject("Auto 2", new Autonomous2(Ultri));
 		
 		SmartDashboard.putData("Autonomous mode chooser", autoChooser);
 		

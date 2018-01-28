@@ -6,14 +6,14 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 public class Autonomous1 extends Command {
-	private DifferentialDrive m_robotDrive
-	 = new DifferentialDrive(new Spark(0), new Spark(1));
+	private DifferentialDrive m_robotDrive;
 	private Timer m_timer = new Timer();
 	boolean quiza;
 	
-	/*public Autonomous1() {
-    	requires(Robot.turret);
-    }*/
+	public Autonomous1(DifferentialDrive m_robotDrive) {
+    	//requires(Robot.turret);
+		this.m_robotDrive = m_robotDrive;
+    }
 	
 	public void initialize() {
 		
