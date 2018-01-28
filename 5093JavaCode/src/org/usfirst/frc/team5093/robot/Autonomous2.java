@@ -10,28 +10,37 @@ public class Autonomous2 extends Command {
 	private double voltaje = 0;
 	private double distancia = 0;
 	private Timer m_timer = new Timer();
+	boolean quiza2;
 	
 	public void initialize() {
 		Ultri = new AnalogInput(3);
 		m_timer.reset();
 		m_timer.start();
+		quiza2 = false;
 	}
 
 	public void execute() {
-		try {
-			voltaje = Ultri.getVoltage();
-			distancia = voltaje/vmm;
-			System.out.println(distancia);
-		}
-		catch(Exception e) {
-			System.out.println("error: " + e.getMessage() );
-		}
+		
+			try {
+				voltaje = Ultri.getVoltage();
+				distancia = voltaje/vmm;
+				System.out.println(distancia);
+				if (m_timer.get() > 5.0) {
+						quiza2 = true;
+				}
+			}
+			catch(Exception e) {
+				System.out.println("error: " + e.getMessage() );
+			}
+				
+			
+		
 	}
 	@Override
 	protected boolean isFinished() {
 		// TODO Auto-generated method stub
 		
-		return false;
+		return quiza2;
 	}
 	
 
