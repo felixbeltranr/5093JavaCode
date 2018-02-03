@@ -8,7 +8,7 @@ public class TouchlessEncoder extends Command {
 	private Counter Touchless;
 	private Timer m_timer = new Timer();
 	boolean quesito;
-	//jiji
+	//jijiiiiiiiii
 	public TouchlessEncoder(Counter Touchless) {
 		this.Touchless = Touchless;
 }
