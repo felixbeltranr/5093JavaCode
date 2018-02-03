@@ -10,6 +10,8 @@ package org.usfirst.frc.team5093.robot;
 //import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 //import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.Counter;
+import edu.wpi.first.wpilibj.Encoder;
 //import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Spark;
@@ -41,6 +43,8 @@ public class Robot extends IterativeRobot {
 	private Command autonomousCommand;
 	SendableChooser<Command> autoChooser;
 	Autonomous1 Auto1;
+	private Counter Touchless = new Counter (2);
+	private Encoder CimCoder = new Encoder(3, 4);
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -52,8 +56,10 @@ public class Robot extends IterativeRobot {
 		
 		Auto1 = new Autonomous1(m_robotDrive);
 		autoChooser = new SendableChooser<Command>();
-		autoChooser.addDefault("Auto 1", Auto1);
+		autoChooser.addDefault("Auto3 Counter", new TouchlessEncoder(Touchless));
+		autoChooser.addObject("Auto 1", Auto1);
 		autoChooser.addObject("Auto 2", new Autonomous2(Ultri));
+		autoChooser.addObject("Auto 4 CIMCODER", new PruebaCimCoder(CimCoder));
 		
 		SmartDashboard.putData("Autonomous mode chooser", autoChooser);
 		
@@ -108,13 +114,13 @@ public class Robot extends IterativeRobot {
 		//m_robotDrive.arcadeDrive(m_stick.getY(), m_stick.getX());
 		//double power = m_stick.getThrottle(); -//Se mueve cn el gatillo derecho
 		//boolean cosita = m_stick.getAButton();
-		double power = m_stick.getTriggerAxis(null);
-		double xAxis = m_stick.getX();
+		//double power = m_stick.getTriggerAxis(null);
+		double power = m_stick.getX();
+		double powercito= (power*1);
+						
+		m_robotDrive.arcadeDrive(powercito, 0);
 		
-		System.out.println(xAxis);				
-		m_robotDrive.arcadeDrive(power, xAxis);
-		
-		if (power > 0 && xAxis == 0) {
+		/*if (power > 0 && xAxis == 0) {
 			System.out.println("Esta avanzando al frente");
 		} if (power > 0 && xAxis > 0) {
 			System.out.println("girando a la derecha");
@@ -122,7 +128,7 @@ public class Robot extends IterativeRobot {
 			System.out.println("girando a la izquierda");
 		} else {
 			System.out.println("El robot no se esta moviendo");
-		}
+		}*/
 		
 		//System.out.println(power);
 	}
