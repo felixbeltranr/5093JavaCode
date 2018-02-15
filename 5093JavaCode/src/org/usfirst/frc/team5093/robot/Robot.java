@@ -7,17 +7,19 @@
 
 package org.usfirst.frc.team5093.robot;
 
-//import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-//import edu.wpi.first.wpilibj.AnalogGyro;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.Counter;
+//import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 //import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.SpeedController;
 //import edu.wpi.first.wpilibj.Joystick;
 //import edu.wpi.first.wpilibj.Spark;
-//import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -35,17 +37,27 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * directory.
  */
 public class Robot extends IterativeRobot {
-//	private Gyro gyro;
+	private AnalogGyro gyro1 = new AnalogGyro(0);
+	private ADXRS450_Gyro gyro450 = new ADXRS450_Gyro();
 	private AnalogInput Ultri = new AnalogInput(3);
-	private DifferentialDrive m_robotDrive = new DifferentialDrive(new Spark(0), new Spark(1));
+	
+	private SpeedController motorLeft = new Spark(1);//1
+	private SpeedController motorRight = new Spark (0);//0
+	
+	private DifferentialDrive m_robotDrive = new DifferentialDrive(motorLeft, motorRight);
 	private XboxController m_stick = new XboxController(0);
-	//private Timer m_timer = new Timer();
+	private Timer m_timer = new Timer();
 	private Command autonomousCommand;
 	SendableChooser<Command> autoChooser;
 	Autonomous1 Auto1;
-	private Counter Touchless = new Counter (2);
-	private Encoder CimCoder = new Encoder(3, 4);
-
+	//private Joystick joy = new Joystick(0);
+	private Encoder CimCoder = new Encoder(6, 7);//2, 3
+	private Encoder CimCoder2 = new Encoder(4, 5, true);
+	private DifferentialDrive tijeras = new DifferentialDrive(new Spark(2), new Spark (3));
+	private DifferentialDrive pinza = new DifferentialDrive(new Spark(4), new Spark (5));//eran 4 y 5
+	
+	//private Counter Touchless = new Counter (2);
+	
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -54,13 +66,18 @@ public class Robot extends IterativeRobot {
 	public void robotInit() {
 	//	gyro = new ADXRS450_Gyro();
 		
-		Auto1 = new Autonomous1(m_robotDrive);
+		//Auto1 = new Autonomous1(m_robotDrive, CimCoder, CimCoder2);
 		autoChooser = new SendableChooser<Command>();
-		autoChooser.addDefault("Auto3 Counter", new TouchlessEncoder(Touchless));
-		autoChooser.addObject("Auto 1", Auto1);
+		autoChooser.addDefault("Auto 1", Auto1);
 		autoChooser.addObject("Auto 2", new Autonomous2(Ultri));
-		autoChooser.addObject("Auto 4 CIMCODER", new PruebaCimCoder(CimCoder));
+		//autoChooser.addObject("AutoGyro", new AutonomoGyro(m_robotDrive, gyro1));
+		autoChooser.addObject("AutoGyro450", new Autonomo450(gyro450, m_robotDrive));
+		autoChooser.addObject("AutoPos1", new AutonomoPosicion1(m_robotDrive, CimCoder, CimCoder2));
+		autoChooser.addObject("AutoPos2", new AutonomoPosicion2(gyro450, m_robotDrive, CimCoder, CimCoder2));
+		//autoChooser.addObject("AutoMotores1 NO USAAAR PLIS", new AutonomoMotores(motorRight, motorLeft, gyro450));
+		//autoChooser.addObject("Auto3 Counter", new TouchlessEncoder(Touchless));
 		
+			
 		SmartDashboard.putData("Autonomous mode chooser", autoChooser);
 		
 		
@@ -103,9 +120,12 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopInit() {
-	
+		gyro450.calibrate();
+		gyro450.reset();
+		//CimCoder.reset();
 	}
 
+	//No se habia subido
 	/**
 	 * This function is called periodically during teleoperated mode.
 	 */
@@ -114,23 +134,67 @@ public class Robot extends IterativeRobot {
 		//m_robotDrive.arcadeDrive(m_stick.getY(), m_stick.getX());
 		//double power = m_stick.getThrottle(); -//Se mueve cn el gatillo derecho
 		//boolean cosita = m_stick.getAButton();
-		//double power = m_stick.getTriggerAxis(null);
-		double power = m_stick.getX();
-		double powercito= (power*1);
-						
-		m_robotDrive.arcadeDrive(powercito, 0);
+		//AQUI ESTA EL CODIGO PARA MOVER EL ROBOT CON XBOX 
+		try{
+			double xAxis = (m_stick.getX(Hand.kRight))/2;
+			double power = -(m_stick.getY(Hand.kRight))/2;
+			//double powercito = power*;
+			double graditos = gyro450.getAngle();
+			m_robotDrive.curvatureDrive(power, xAxis, true);
+			//System.out.println(xAxis + "    Lecturas gyro: " + graditos);
+			
+			double gatilloDUp = m_stick.getTriggerAxis(Hand.kRight); //Con este baja
+			tijeras.curvatureDrive(0, gatilloDUp, true);
+			double gatilloDDown = m_stick.getTriggerAxis(Hand.kLeft); //Con este sube
+			tijeras.curvatureDrive(0, -gatilloDDown, true);
+			System.out.println("Lectura " + gatilloDUp + gatilloDDown);
+
+			double pinzas = m_stick.getX(Hand.kLeft);
+			pinza.arcadeDrive(pinzas, 0);
+			
+			/*if (m_stick.getAButton()) {
+				m_timer.reset();
+				while (m_timer.get() < 1.0) {
+					m_robotDrive.arcadeDrive(1, 0);
+				}
+			} */
+			
 		
-		/*if (power > 0 && xAxis == 0) {
+		}
+		catch(Exception e) {
+			//System.out.println("error: " + e.getMessage() );
+		}
+																										
+		
+		
+		//m_robotDrive.arcadeDrive(powercito, 0);
+		
+		/*
+		if (power > 0 && xAxis == 0) {
 			System.out.println("Esta avanzando al frente");
-		} if (power > 0 && xAxis > 0) {
+		} if (power > 0 && xAxis > 0) {Limelight Camera
 			System.out.println("girando a la derecha");
 		} if (power >0 && xAxis <0 ) {
 			System.out.println("girando a la izquierda");
 		} else {
 			System.out.println("El robot no se esta moviendo");
-		}*/
+		}
+		*/
+	/*
+		double powercin = joy.getY(null);
+		double x = joy.getX(null);
+		//System.out.println(x);
+		m_robotDrive.arcadeDrive(powercin/2, 0);*/
+		/*double prueba1 = CimCoder.get(); //son 20 unidades por una vuelta (va por unidades enteras)
+		double prueba2 = CimCoder.getDistance(); //son 20 unidades por vuelta (va por .25)
+		double prueba3 = CimCoder.getRaw(); //son 80 unidades por vuelta (va por unidades enteras)
+		double prueba4 = CimCoder.getRate(); //mide velocidad del encoder
+		double vueltas = prueba3/80;
+		System.out.println(vueltas);*/
 		
-		//System.out.println(power);
+		
+		
+
 	}
 
 	/**

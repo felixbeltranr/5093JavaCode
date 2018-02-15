@@ -1,11 +1,14 @@
+ 
+
 package org.usfirst.frc.team5093.robot;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 
 public class PruebaCimCoder extends Command {
-	private Encoder CimCoder;
+	private Encoder CimCoder = new Encoder(2,3);
 	private Timer m_timer = new Timer();
 	boolean quizaa;
 	
