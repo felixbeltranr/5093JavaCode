@@ -51,10 +51,10 @@ public class Robot extends IterativeRobot {
 	SendableChooser<Command> autoChooser;
 	Autonomous1 Auto1;
 	//private Joystick joy = new Joystick(0);
-	private Encoder CimCoder = new Encoder(6, 7);//2, 3
-	private Encoder CimCoder2 = new Encoder(4, 5, true);
-	private DifferentialDrive tijeras = new DifferentialDrive(new Spark(2), new Spark (3));
-	private DifferentialDrive pinza = new DifferentialDrive(new Spark(4), new Spark (5));//eran 4 y 5
+	private Encoder CimCoder = new Encoder(8, 9, true); //6, 7, true); //Izquierdo
+	private Encoder CimCoder2 = new Encoder(4, 5, false); //8, 9, false); //Derecho
+	private DifferentialDrive tijeras = new DifferentialDrive(new Spark(6), new Spark (7));
+	//private DifferentialDrive pinza = new DifferentialDrive(new Spark(3), new Spark (6));//eran 4 y 5
 	
 	//private Counter Touchless = new Counter (2);
 	
@@ -74,6 +74,7 @@ public class Robot extends IterativeRobot {
 		autoChooser.addObject("AutoGyro450", new Autonomo450(gyro450, m_robotDrive));
 		autoChooser.addObject("AutoPos1", new AutonomoPosicion1(m_robotDrive, CimCoder, CimCoder2));
 		autoChooser.addObject("AutoPos2", new AutonomoPosicion2(gyro450, m_robotDrive, CimCoder, CimCoder2));
+		autoChooser.addObject("Autonomo para FMS", new AutonomoFMS());
 		//autoChooser.addObject("AutoMotores1 NO USAAAR PLIS", new AutonomoMotores(motorRight, motorLeft, gyro450));
 		//autoChooser.addObject("Auto3 Counter", new TouchlessEncoder(Touchless));
 		
@@ -141,16 +142,17 @@ public class Robot extends IterativeRobot {
 			//double powercito = power*;
 			double graditos = gyro450.getAngle();
 			m_robotDrive.curvatureDrive(power, xAxis, true);
-			//System.out.println(xAxis + "    Lecturas gyro: " + graditos);
+			
+			System.out.println(xAxis + "    Power: " + power);
 			
 			double gatilloDUp = m_stick.getTriggerAxis(Hand.kRight); //Con este baja
 			tijeras.curvatureDrive(0, gatilloDUp, true);
 			double gatilloDDown = m_stick.getTriggerAxis(Hand.kLeft); //Con este sube
 			tijeras.curvatureDrive(0, -gatilloDDown, true);
-			System.out.println("Lectura " + gatilloDUp + gatilloDDown);
+			//System.out.println("Lectura " + gatilloDUp + gatilloDDown);
 
 			double pinzas = m_stick.getX(Hand.kLeft);
-			pinza.arcadeDrive(pinzas, 0);
+			//pinza.arcadeDrive(pinzas, 0);
 			
 			/*if (m_stick.getAButton()) {
 				m_timer.reset();

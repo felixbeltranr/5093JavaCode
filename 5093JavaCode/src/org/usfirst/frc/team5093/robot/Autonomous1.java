@@ -87,7 +87,7 @@ public class Autonomous1 extends Command {
 	
 	public void execute() {
 		//m_robotDrive.arcadeDrive(0, 0.5);
-		Avanza(2000.0);//en milimetros
+		Avanza(1000.0);//en milimetros
 		
 		
 	}
