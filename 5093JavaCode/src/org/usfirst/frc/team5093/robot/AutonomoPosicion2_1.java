@@ -18,7 +18,7 @@ public class AutonomoPosicion2_1 extends Command {
 	public void initialize(){
 		m_timer.reset();
 		m_timer.start();
-		robotin.CalibrarGyro();
+		//robotin.CalibrarGyro();
 		robotin.resetEncoders();
 		robotin.ResetGyro();
 	}
@@ -26,6 +26,7 @@ public class AutonomoPosicion2_1 extends Command {
 	public void execute() {
 		
 		robotin.Avanza(1000.0);
+		robotin.LevantarTijeras(2.0);
 		/*Avanza(1016.0);
 		Timer.delay(1);
 		Girar(90);

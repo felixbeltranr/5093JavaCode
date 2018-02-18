@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedController;
-//import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Joystick;
 //import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -48,19 +48,22 @@ public class Robot extends IterativeRobot {
 	private DifferentialDrive m_robotDrive = new DifferentialDrive(motorLeft, motorRight);
 	private XboxController m_stick = new XboxController(0);
 	private Timer m_timer = new Timer();
+	private Timer TimerTijeras1 = new Timer();
+	private Timer TimerTijeras2 = new Timer();
+	
 	private Command autonomousCommand;
 	SendableChooser<Command> autoChooser;
 	Autonomous1 Auto1;
-	//private Joystick joy = new Joystick(0);
+	private Joystick joy = new Joystick(0);
 	private Encoder CimCoder = new Encoder(8, 9, true); //6, 7, true); //Izquierdo
-	private Encoder CimCoder2 = new Encoder(4, 5, false); //8, 9, false); //Derecho
+	private Encoder CimCoder2 = new Encoder(4, 5, true); //8, 9, false); //Derecho
 	private DifferentialDrive tijeras = new DifferentialDrive(new Spark(6), new Spark (7));
 	//private DifferentialDrive pinza = new DifferentialDrive(new Spark(3), new Spark (6));//eran 4 y 5
 	private Counter Touchless = new Counter (3);
 	
 	int contadorTouchless = 0;
 	int contadorCim = 0;
-	double PulsePerDistance = 1.6; //Cantidad de pulsos para 1 milimetro 1.556
+	double PulsePerDistance = 1.27733; //Cantidad de pulsos para 1 milimetro 1.556
 
 	double Diametro = 6.0;
 	double PI = 3.14159265359;
@@ -147,21 +150,36 @@ public class Robot extends IterativeRobot {
 		//boolean cosita = m_stick.getAButton();
 		//AQUI ESTA EL CODIGO PARA MOVER EL ROBOT CON XBOX 
 		try{
-			double xAxis = (m_stick.getX(Hand.kRight))/2;
-			double power = -(m_stick.getY(Hand.kRight))/2;
+			double xAxis = (m_stick.getX(Hand.kRight));
+			double power = -(m_stick.getY(Hand.kRight));
 			//double powercito = power*;
 			double graditos = gyro450.getAngle();
 			m_robotDrive.curvatureDrive(power, xAxis, true);
 			
 			System.out.println(xAxis + "    Power: " + power);
 			
-			double gatilloDUp = m_stick.getTriggerAxis(Hand.kRight); //Con este baja
-			tijeras.curvatureDrive(0, gatilloDUp, true);
-			double gatilloDDown = m_stick.getTriggerAxis(Hand.kLeft); //Con este sube
-			tijeras.curvatureDrive(0, -gatilloDDown, true);
+			double gatilloDDown = m_stick.getTriggerAxis(Hand.kRight); //Con este baja
+			double gatilloDUp = m_stick.getTriggerAxis(Hand.kLeft); //Con este sube
+			
+			if (gatilloDUp > 0 && gatilloDDown > 0) {
+				tijeras.curvatureDrive(0, 0, true);
+			}
+			else if (gatilloDDown>0) {
+				tijeras.curvatureDrive(0, gatilloDDown, true);
+			}
+			else if (gatilloDUp>0) {
+				tijeras.curvatureDrive(0, -gatilloDUp, true);
+			}
+			else {
+				tijeras.curvatureDrive(0, 0, true);
+			}
 			//System.out.println("Lectura " + gatilloDUp + gatilloDDown);
 
 			double pinzas = m_stick.getX(Hand.kLeft);
+			
+			/*double power2 = joy.getY();
+			double anguloJoy = joy.getZ();
+			m_robotDrive.curvatureDrive(power2, anguloJoy, true);*/
 			//pinza.arcadeDrive(pinzas, 0);
 			
 			/*if (m_stick.getAButton()) {
@@ -214,6 +232,16 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void testPeriodic() {
+	}
+	
+	public void LevantarTijeras(double segundos) {
+		TimerTijeras1.reset();
+		TimerTijeras1.start();
+		
+		 while (TimerTijeras1.get() < segundos) {
+		tijeras.curvatureDrive(0, -1, true);
+	}
+		 tijeras.curvatureDrive(0, 0, true);
 	}
 	
 	public double getAverageEncoderPosition() {
