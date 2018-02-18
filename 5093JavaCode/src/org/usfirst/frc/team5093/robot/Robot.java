@@ -10,6 +10,7 @@ package org.usfirst.frc.team5093.robot;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.Counter;
 //import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
@@ -39,7 +40,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends IterativeRobot {
 	private AnalogGyro gyro1 = new AnalogGyro(0);
 	private ADXRS450_Gyro gyro450 = new ADXRS450_Gyro();
-	private AnalogInput Ultri = new AnalogInput(3);
+	private AnalogInput Ultri = new AnalogInput(2);
 	
 	private SpeedController motorLeft = new Spark(1);//1
 	private SpeedController motorRight = new Spark (0);//0
@@ -55,8 +56,15 @@ public class Robot extends IterativeRobot {
 	private Encoder CimCoder2 = new Encoder(4, 5, false); //8, 9, false); //Derecho
 	private DifferentialDrive tijeras = new DifferentialDrive(new Spark(6), new Spark (7));
 	//private DifferentialDrive pinza = new DifferentialDrive(new Spark(3), new Spark (6));//eran 4 y 5
+	private Counter Touchless = new Counter (3);
 	
-	//private Counter Touchless = new Counter (2);
+	int contadorTouchless = 0;
+	int contadorCim = 0;
+	double PulsePerDistance = 1.6; //Cantidad de pulsos para 1 milimetro 1.556
+
+	double Diametro = 6.0;
+	double PI = 3.14159265359;
+	double Circunferencia = Diametro*PI;
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -73,10 +81,12 @@ public class Robot extends IterativeRobot {
 		//autoChooser.addObject("AutoGyro", new AutonomoGyro(m_robotDrive, gyro1));
 		autoChooser.addObject("AutoGyro450", new Autonomo450(gyro450, m_robotDrive));
 		autoChooser.addObject("AutoPos1", new AutonomoPosicion1(m_robotDrive, CimCoder, CimCoder2));
-		autoChooser.addObject("AutoPos2", new AutonomoPosicion2(gyro450, m_robotDrive, CimCoder, CimCoder2));
+		//autoChooser.addObject("AutoPos2", new AutonomoPosicion2(gyro450, m_robotDrive, CimCoder, CimCoder2));
+		autoChooser.addObject("AutoPos2 NUEVO", new AutonomoPosicion2_1(this));
 		autoChooser.addObject("Autonomo para FMS", new AutonomoFMS());
 		//autoChooser.addObject("AutoMotores1 NO USAAAR PLIS", new AutonomoMotores(motorRight, motorLeft, gyro450));
-		//autoChooser.addObject("Auto3 Counter", new TouchlessEncoder(Touchless));
+		autoChooser.addObject("Auto3 Counter", new TouchlessEncoder(this));
+		autoChooser.addObject("Autonomo prueba TOCUCHLESS", new AutonomoTouchlessEncoder(this));
 		
 			
 		SmartDashboard.putData("Autonomous mode chooser", autoChooser);
@@ -204,5 +214,108 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void testPeriodic() {
+	}
+	
+	public double getAverageEncoderPosition() {
+		//if(contador < CimCoder2.getRaw()) {
+			System.out.println("Cim1_2: " + CimCoder.getDistance());
+			System.out.println("Cim2_2: " + CimCoder2.getDistance());
+			System.out.println("Cim1 raw: " + CimCoder.getRaw());
+			System.out.println("Cim2 raw: " + CimCoder2.getRaw());
+			contadorCim = CimCoder2.getRaw();
+		//}
+
+		//return CimCoder.getDistance();
+		return CimCoder2.getRaw() / PulsePerDistance;
+	}
+	
+	public void resetEncoders() {
+		CimCoder.reset();
+		CimCoder2.reset();
+	}
+
+	public void Avanza (double milimetros) {
+		resetEncoders();
+		do {
+			m_robotDrive.curvatureDrive(0.3, 0.0, true); // drive forwards half speed
+		}while(getAverageEncoderPosition() < milimetros);
+		
+		m_robotDrive.curvatureDrive(0.0, 0.0, true);
+	}
+
+	
+	public void ResetGyro () {
+		gyro450.reset();
+	}
+	
+	public void CalibrarGyro () {
+		gyro450.calibrate();
+	}
+	
+	public void Girar (double gradosMeta) {     //metodo de sofia que no ha terminado por cierto y esta mal hecho, lo hara el legendario Ulises de la mancha
+		gyro450.reset();
+		int gradosInt = 0;
+		int sentido = 1;
+		if(gradosMeta < 0) {
+			sentido = -1;
+		}
+
+		double angulo = 0.0;
+		while (angulo < gradosMeta*sentido) {
+			m_robotDrive.curvatureDrive(0.0, sentido*0.75, true);
+			angulo = gyro450.getAngle()*sentido;
+			if(gradosInt < (int)angulo) {
+				gradosInt = (int)angulo*sentido;
+				System.out.println(gradosInt);
+			}
+		}
+		
+		m_robotDrive.curvatureDrive(0.0, 0.0, true);
+	}
+	
+	public void PruebaTouchless() {
+
+		//La llanta tiene 12 rayas negras, es decir, por vuelta detecta 12 pulsos
+
+		try {
+			double prueba1 = Touchless.get(); //Este metodo lee la cantidad de pulsos (es el indicado para utilizar)
+			double prueba2 = Touchless.getDistance(); 
+			double prueba3 = Touchless.getRate();
+			
+			if(contadorTouchless < Touchless.get()) {
+			
+			System.out.println("prueba1   " + prueba1);
+			//System.out.println("prueba2   " + prueba2);
+			//System.out.println("prueba3   " + prueba3);
+			contadorTouchless = Touchless.get();
+			}
+		}
+		catch(Exception e) {
+			System.out.println("error" + e.getMessage());
+		}
+		
+		}
+	public void AvanzarTouchless(double DistanciaMeta) {
+		Touchless.reset();
+		double LecturasMeta = (DistanciaMeta*12)/Circunferencia;
+		System.out.println(LecturasMeta);
+
+		while (Touchless.get() < LecturasMeta) {
+			m_robotDrive.curvatureDrive(0.3, 0.0, true);
+			
+			if(contadorTouchless < Touchless.get()) {
+				
+				System.out.println("prueba1   " + Touchless.get());
+				//System.out.println("prueba2   " + prueba2);
+				//System.out.println("prueba3   " + prueba3);
+				contadorTouchless = Touchless.get();
+				}
+		}
+		m_robotDrive.curvatureDrive(0.0, 0.0, true);
+	}
+	
+	public void inicializarTouchless() {
+		Touchless.reset();
+		contadorTouchless = 0;	
 	}
 }

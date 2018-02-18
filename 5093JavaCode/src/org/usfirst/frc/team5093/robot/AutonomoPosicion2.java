@@ -64,7 +64,6 @@ public class AutonomoPosicion2 extends Command{
 		}while(getAverageEncoderPosition() < milimetros);
 		
 		m_robotDrive.curvatureDrive(0.0, 0.0, true);
-		quiza=true;
 	}
 
 	public void Girar (double gradosMeta) {     //metodo de sofia que no ha terminado por cierto y esta mal hecho, lo hara el legendario Ulises de la mancha
