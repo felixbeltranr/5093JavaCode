@@ -28,7 +28,7 @@ public void initialize() {
 
 public void execute() {
 	
-	robotin.PruebaTouchless();
+	robotin.AvanzarTouchless(40);
 	
 	/*double vueltas = 0;
 	if (prueba2>0) {
