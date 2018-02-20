@@ -83,19 +83,21 @@ public class Robot extends IterativeRobot {
 	//	gyro = new ADXRS450_Gyro();
 		
 		//Auto1 = new Autonomous1(m_robotDrive, CimCoder, CimCoder2);
-		autoChooser = new SendableChooser<Command>();
-		autoChooser.addDefault("Auto 1", Auto1);
-		autoChooser.addObject("Auto 2", new Autonomous2(Ultri));
+		//autoChooser = new SendableChooser<Command>();
+		//autoChooser.addDefault("Auto 1", Auto1);
+		//autoChooser.addObject("Auto 2", new Autonomous2(Ultri));
 		//autoChooser.addObject("AutoGyro", new AutonomoGyro(m_robotDrive, gyro1));
-		autoChooser.addObject("AutoGyro450", new Autonomo450(gyro450, m_robotDrive));
-		autoChooser.addObject("AutoPos1", new AutonomoPosicion1(m_robotDrive, CimCoder, CimCoder2));
+		//autoChooser.addObject("AutoGyro450", new Autonomo450(gyro450, m_robotDrive));
+		autoChooser.addDefault("Auto con robot en una esquina para pasar linea", new AutonomoPosicion1(this));
 		//autoChooser.addObject("AutoPos2", new AutonomoPosicion2(gyro450, m_robotDrive, CimCoder, CimCoder2));
-		autoChooser.addObject("AutoPos2 NUEVO", new AutonomoPosicion2_1(this));
-		autoChooser.addObject("Autonomo para FMS", new AutonomoFMS());
+		autoChooser.addObject("Auto con robot en el medio para pasar linea", new AutonomoPosicion2_1(this));
+		autoChooser.addObject("Auto con robot en el medio para poner cubo", new AutonomoFMS(this));
 		//autoChooser.addObject("AutoMotores1 NO USAAAR PLIS", new AutonomoMotores(motorRight, motorLeft, gyro450));
 		//autoChooser.addObject("Auto3 Counter", new TouchlessEncoder(this));
-		autoChooser.addObject("Autonomo prueba TOUCHLESS", new AutonomoTouchlessEncoder(this));
+		//autoChooser.addObject("Autonomo prueba TOUCHLESS", new AutonomoTouchlessEncoder(this));
 		autoChooser.addObject("Calibrar gyro", new AutonomoCalibrarGyro(this));
+		autoChooser.addObject("Auto desde esquina derecha para poner cubo", new AutonomoPosicion3(this));
+		autoChooser.addObject("Auto desde esquina izquierda para poner cubo", new AutonomoPosicion4(this));
 		
 			
 		SmartDashboard.putData("Autonomous mode chooser", autoChooser);
@@ -439,8 +441,8 @@ public class Robot extends IterativeRobot {
 
 				}
 			
-			if (Touchless.get() > (Meta-6) && Contadorcin >= 20){
-				powercin = powercin - .002;
+			if (Touchless.get() > (Meta*sentido-6) && Contadorcin >= 20){
+				powercin = powercin - .002*sentido;
 				Contadorcin = 0;
 			}
 			
