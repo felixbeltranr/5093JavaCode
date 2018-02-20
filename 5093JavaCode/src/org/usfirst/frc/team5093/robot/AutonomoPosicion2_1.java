@@ -20,13 +20,28 @@ public class AutonomoPosicion2_1 extends Command {
 		m_timer.start();
 		//robotin.CalibrarGyro();
 		robotin.resetEncoders();
-		robotin.ResetGyro();
+		//robotin.ResetGyro();
 	}
 	
 	public void execute() {
 		
-		robotin.Avanza(1000.0);
-		robotin.LevantarTijeras(2.0);
+		
+		robotin.AvanzarTouchless2(40);
+		Timer.delay(0.2);
+		robotin.ResetGyro();
+		robotin.Girar(90);
+		Timer.delay(0.2);
+		robotin.AvanzarTouchless2(20);
+		Timer.delay(0.2);
+		robotin.ResetGyro();
+		robotin.Girar(-90);
+		Timer.delay(0.2);
+		robotin.AvanzarTouchless2(20);
+		Timer.delay(0.2);
+		robotin.ResetGyro();
+		robotin.Girar(90);
+		
+		//robotin.LevantarTijeras(2.0);
 		/*Avanza(1016.0);
 		Timer.delay(1);
 		Girar(90);
@@ -40,7 +55,11 @@ public class AutonomoPosicion2_1 extends Command {
 		quiza = true;
 	}
 	
-
+	protected void interrupted() {
+		System.out.println("Se Disableleo");
+		quiza = true;
+	}
+	
 	@Override
 	protected boolean isFinished() {
 		// TODO Auto-generated method stub

@@ -19,7 +19,7 @@ public class AutonomoTouchlessEncoder extends Command{
 	}
 	
 	public void execute() {
-		robotin.AvanzarTouchless(50);
+		robotin.AvanzarTouchless(78.75);
 	}
 	
 	protected boolean isFinished() {

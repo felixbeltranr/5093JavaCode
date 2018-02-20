@@ -46,7 +46,8 @@ public class Robot extends IterativeRobot {
 	private SpeedController motorRight = new Spark (0);//0
 	
 	private DifferentialDrive m_robotDrive = new DifferentialDrive(motorLeft, motorRight);
-	private XboxController m_stick = new XboxController(0);
+	private XboxController m_stick = new XboxController(0); //aparece en la izquierda en el dash board
+	private XboxController m_stick2 = new XboxController(1); //aparece en la derecha en el dash board
 	private Timer m_timer = new Timer();
 	private Timer TimerTijeras1 = new Timer();
 	private Timer TimerTijeras2 = new Timer();
@@ -54,11 +55,15 @@ public class Robot extends IterativeRobot {
 	private Command autonomousCommand;
 	SendableChooser<Command> autoChooser;
 	Autonomous1 Auto1;
-	private Joystick joy = new Joystick(0);
+	//private Joystick joy = new Joystick(0);
 	private Encoder CimCoder = new Encoder(8, 9, true); //6, 7, true); //Izquierdo
 	private Encoder CimCoder2 = new Encoder(4, 5, true); //8, 9, false); //Derecho
-	private DifferentialDrive tijeras = new DifferentialDrive(new Spark(6), new Spark (7));
-	//private DifferentialDrive pinza = new DifferentialDrive(new Spark(3), new Spark (6));//eran 4 y 5
+	
+	//private DifferentialDrive tijeras = new DifferentialDrive(new Spark(6), new Spark (7));
+	//private DifferentialDrive tijerasAbajo = new DifferentialDrive(new Spark(2), new Spark (8));
+	private SpeedController pinza = new Spark (9);
+	private SpeedController levantaPinza = new Spark (7);
+	
 	private Counter Touchless = new Counter (3);
 	
 	int contadorTouchless = 0;
@@ -88,8 +93,9 @@ public class Robot extends IterativeRobot {
 		autoChooser.addObject("AutoPos2 NUEVO", new AutonomoPosicion2_1(this));
 		autoChooser.addObject("Autonomo para FMS", new AutonomoFMS());
 		//autoChooser.addObject("AutoMotores1 NO USAAAR PLIS", new AutonomoMotores(motorRight, motorLeft, gyro450));
-		autoChooser.addObject("Auto3 Counter", new TouchlessEncoder(this));
-		autoChooser.addObject("Autonomo prueba TOCUCHLESS", new AutonomoTouchlessEncoder(this));
+		//autoChooser.addObject("Auto3 Counter", new TouchlessEncoder(this));
+		autoChooser.addObject("Autonomo prueba TOUCHLESS", new AutonomoTouchlessEncoder(this));
+		autoChooser.addObject("Calibrar gyro", new AutonomoCalibrarGyro(this));
 		
 			
 		SmartDashboard.putData("Autonomous mode chooser", autoChooser);
@@ -150,8 +156,8 @@ public class Robot extends IterativeRobot {
 		//boolean cosita = m_stick.getAButton();
 		//AQUI ESTA EL CODIGO PARA MOVER EL ROBOT CON XBOX 
 		try{
-			double xAxis = (m_stick.getX(Hand.kRight));
-			double power = -(m_stick.getY(Hand.kRight));
+			double xAxis = (m_stick2.getX(Hand.kRight));
+			double power = -(m_stick2.getY(Hand.kRight));
 			//double powercito = power*;
 			double graditos = gyro450.getAngle();
 			m_robotDrive.curvatureDrive(power, xAxis, true);
@@ -161,7 +167,7 @@ public class Robot extends IterativeRobot {
 			double gatilloDDown = m_stick.getTriggerAxis(Hand.kRight); //Con este baja
 			double gatilloDUp = m_stick.getTriggerAxis(Hand.kLeft); //Con este sube
 			
-			if (gatilloDUp > 0 && gatilloDDown > 0) {
+			/*if (gatilloDUp > 0 && gatilloDDown > 0) {
 				tijeras.curvatureDrive(0, 0, true);
 			}
 			else if (gatilloDDown>0) {
@@ -172,15 +178,54 @@ public class Robot extends IterativeRobot {
 			}
 			else {
 				tijeras.curvatureDrive(0, 0, true);
+			}*/
+
+			boolean positivo = m_stick.getAButton();
+			boolean negativo = m_stick.getBButton();
+			
+			/*if (positivo == true && negativo == true) {
+				
+				tijerasAbajo.curvatureDrive(0, 0, true);
+				
+			} else if (negativo == true) {
+				
+				tijerasAbajo.curvatureDrive(0, -1, true);
+				
+			} else if (positivo == true) {
+				
+				tijerasAbajo.curvatureDrive(0, 1,true);
+
+			} else {
+				
+				tijerasAbajo.curvatureDrive(0, 0, true);
+
+			}*/
+			/*if (gatilloDUp > 0 && gatilloDDown > 0) {
+				tijerasArriba.curvatureDrive(0, 0, true);
+				tijerasAbajo.curvatureDrive(0, 0, true);
 			}
+			else if (gatilloDDown>0) {
+				tijerasAbajo.curvatureDrive(0, gatilloDDown, true);
+			}
+			else if (gatilloDUp>0) {
+				tijerasArriba.curvatureDrive(0, -gatilloDUp, true);
+			}
+			else {
+				tijerasArriba.curvatureDrive(0, 0, true);
+				tijerasAbajo.curvatureDrive(0, 0, true);
+			}*/
 			//System.out.println("Lectura " + gatilloDUp + gatilloDDown);
 
 			double pinzas = m_stick.getX(Hand.kLeft);
+			double pinzitas = -1*m_stick.getY(Hand.kRight);
 			
-			/*double power2 = joy.getY();
-			double anguloJoy = joy.getZ();
-			m_robotDrive.curvatureDrive(power2, anguloJoy, true);*/
-			//pinza.arcadeDrive(pinzas, 0);
+			/*if (power2 != 0  ) {
+				anguloJoy = joy.getZ();
+				m_robotDrive.curvatureDrive(power2, anguloJoy, true);
+			}*/
+			
+			pinza.set(pinzas);
+			levantaPinza.set(pinzitas);
 			
 			/*if (m_stick.getAButton()) {
 				m_timer.reset();
@@ -239,9 +284,9 @@ public class Robot extends IterativeRobot {
 		TimerTijeras1.start();
 		
 		 while (TimerTijeras1.get() < segundos) {
-		tijeras.curvatureDrive(0, -1, true);
+		//tijeras.curvatureDrive(0, -1, true);
 	}
-		 tijeras.curvatureDrive(0, 0, true);
+		 //tijeras.curvatureDrive(0, 0, true);
 	}
 	
 	public double getAverageEncoderPosition() {
@@ -284,19 +329,32 @@ public class Robot extends IterativeRobot {
 		gyro450.reset();
 		int gradosInt = 0;
 		int sentido = 1;
+		int Contador4 = 0;
+		double powerGiro = 0.65;
 		if(gradosMeta < 0) {
 			sentido = -1;
+			powerGiro = 0.8;
 		}
 
 		double angulo = 0.0;
 		while (angulo < gradosMeta*sentido) {
-			m_robotDrive.curvatureDrive(0.0, sentido*0.75, true);
+			m_robotDrive.curvatureDrive(0.0, sentido*powerGiro, true);
 			angulo = gyro450.getAngle()*sentido;
 			if(gradosInt < (int)angulo) {
 				gradosInt = (int)angulo*sentido;
 				System.out.println(gradosInt);
 			}
+			if ((gyro450.getAngle()*sentido) > ((gradosMeta*sentido)-20) && Contador4 >= 20){
+				powerGiro = powerGiro - (.01*sentido);
+				Contador4 = 0;
+			}
+			
+			if (powerGiro*sentido <= 0.55) {
+				powerGiro = 0.55;
+			}
+			Contador4 = Contador4 + 1;
 		}
+		
 		
 		m_robotDrive.curvatureDrive(0.0, 0.0, true);
 	}
@@ -327,9 +385,19 @@ public class Robot extends IterativeRobot {
 		Touchless.reset();
 		double LecturasMeta = (DistanciaMeta*12)/Circunferencia;
 		System.out.println(LecturasMeta);
+		double power3 = 0;
+		double sentido = 1;
+		if (DistanciaMeta > 0) {
+			power3 = 0.3;
+			sentido = 1;
+		} 
+		if (DistanciaMeta < 0){
+			power3 = -0.3;
+			sentido = -1;
+		}
 
-		while (Touchless.get() < LecturasMeta) {
-			m_robotDrive.curvatureDrive(0.3, 0.0, true);
+		while (Touchless.get() < (LecturasMeta*sentido-2)) {
+			m_robotDrive.curvatureDrive(power3, 0.0, true);
 			
 			if(contadorTouchless < Touchless.get()) {
 				
@@ -340,6 +408,47 @@ public class Robot extends IterativeRobot {
 				}
 		}
 		m_robotDrive.curvatureDrive(0.0, 0.0, true);
+	}
+	
+	public void AvanzarTouchless2 (double Distancia) {
+		Touchless.reset();
+		contadorTouchless = 0;
+		int Contadorcin = 0;
+				
+		double Meta = (Distancia*12)/Circunferencia;
+		System.out.println(Meta);
+		double powercin = 0;
+		int sentido = 1;
+		
+		if (Distancia > 0) {
+			powercin = 0.3;
+			sentido = 1;
+		} 
+		if (Distancia < 0) {
+			powercin = -0.3;
+			sentido = -1;
+		}
+		
+		while (Touchless.get() < (Meta*sentido)) {
+			m_robotDrive.curvatureDrive(powercin, 0.0, true);
+			Contadorcin = Contadorcin + 1;
+			
+			if(contadorTouchless < Touchless.get()) {
+				//System.out.println("prueba1   " + Touchless.get());
+				contadorTouchless = Touchless.get();
+
+				}
+			
+			if (Touchless.get() > (Meta-6) && Contadorcin >= 20){
+				powercin = powercin - .002;
+				Contadorcin = 0;
+			}
+			
+			System.out.println("power" + powercin + "Contador del touchless" + Touchless.get());
+		}
+		m_robotDrive.curvatureDrive(0.0, 0.0, true);
+		
+			
 	}
 	
 	public void inicializarTouchless() {
