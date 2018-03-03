@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PWMVictorSPX;
 //import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -39,7 +40,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Robot extends IterativeRobot {
 	private AnalogGyro gyro1 = new AnalogGyro(0);
-	private ADXRS450_Gyro gyro450 = new ADXRS450_Gyro();
+	//private ADXRS450_Gyro gyro450 = new ADXRS450_Gyro();
 	private AnalogInput Ultri = new AnalogInput(2);
 	
 	private SpeedController motorLeft = new Spark(1);//1
@@ -51,6 +52,8 @@ public class Robot extends IterativeRobot {
 	private Timer m_timer = new Timer();
 	private Timer TimerTijeras1 = new Timer();
 	private Timer TimerTijeras2 = new Timer();
+	
+	private SpeedController victor1 = new PWMVictorSPX(3);
 	
 	private Command autonomousCommand;
 	SendableChooser<Command> autoChooser;
@@ -98,7 +101,7 @@ public class Robot extends IterativeRobot {
 		autoChooser.addObject("Calibrar gyro", new AutonomoCalibrarGyro(this));
 		autoChooser.addObject("Auto desde esquina derecha para poner cubo", new AutonomoPosicion3(this));
 		autoChooser.addObject("Auto desde esquina izquierda para poner cubo", new AutonomoPosicion4(this));
-		
+		autoChooser.addObject("Prueba con el VictorSPX", new AutonomoVictor(this));
 			
 		SmartDashboard.putData("Autonomous mode chooser", autoChooser);
 		
@@ -142,12 +145,10 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopInit() {
-		gyro450.calibrate();
-		gyro450.reset();
-		//CimCoder.reset();
+		//gyro450.calibrate();
+		//gyro450.reset();
 	}
 
-	//No se habia subido
 	/**
 	 * This function is called periodically during teleoperated mode.
 	 */
@@ -161,7 +162,7 @@ public class Robot extends IterativeRobot {
 			double xAxis = (m_stick2.getX(Hand.kRight));
 			double power = -(m_stick2.getY(Hand.kRight));
 			//double powercito = power*;
-			double graditos = gyro450.getAngle();
+			//double graditos = gyro450.getAngle();
 			m_robotDrive.curvatureDrive(power, xAxis, true);
 			
 			System.out.println(xAxis + "    Power: " + power);
@@ -320,15 +321,15 @@ public class Robot extends IterativeRobot {
 
 	
 	public void ResetGyro () {
-		gyro450.reset();
+		//gyro450.reset();
 	}
 	
 	public void CalibrarGyro () {
-		gyro450.calibrate();
+		//gyro450.calibrate();
 	}
 	
 	public void Girar (double gradosMeta) {     //metodo de sofia que no ha terminado por cierto y esta mal hecho, lo hara el legendario Ulises de la mancha
-		gyro450.reset();
+		//gyro450.reset();
 		int gradosInt = 0;
 		int sentido = 1;
 		int Contador4 = 0;
@@ -341,12 +342,12 @@ public class Robot extends IterativeRobot {
 		double angulo = 0.0;
 		while (angulo < gradosMeta*sentido) {
 			m_robotDrive.curvatureDrive(0.0, sentido*powerGiro, true);
-			angulo = gyro450.getAngle()*sentido;
+			//angulo = gyro450.getAngle()*sentido;
 			if(gradosInt < (int)angulo) {
 				gradosInt = (int)angulo*sentido;
 				System.out.println(gradosInt);
 			}
-			if ((gyro450.getAngle()*sentido) > ((gradosMeta*sentido)-20) && Contador4 >= 20){
+			if (/*(gyro450.getAngle()*sentido) > ((gradosMeta*sentido)-20) &&*/ Contador4 >= 20){
 				powerGiro = powerGiro - (.01*sentido);
 				Contador4 = 0;
 			}
@@ -457,4 +458,10 @@ public class Robot extends IterativeRobot {
 		Touchless.reset();
 		contadorTouchless = 0;	
 	}
+	
+	public void PruebaVictor() {
+		victor1.set(0.3);
+		
+	}
+	
 }
