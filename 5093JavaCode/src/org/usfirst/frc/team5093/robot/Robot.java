@@ -10,12 +10,14 @@ package org.usfirst.frc.team5093.robot;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Counter;
 //import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 //import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Joystick;
@@ -30,6 +32,14 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 //import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -53,7 +63,16 @@ public class Robot extends IterativeRobot {
 	private Timer TimerTijeras1 = new Timer();
 	private Timer TimerTijeras2 = new Timer();
 	
-	private SpeedController victor1 = new PWMVictorSPX(3);
+	NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+	NetworkTableEntry tx = table.getEntry("tx");
+	NetworkTableEntry ty = table.getEntry("ty");
+	NetworkTableEntry ta = table.getEntry("ta");
+	
+	private VictorSPX victor1 = new VictorSPX(2);
+	
+	private TalonSRX talon1 = new TalonSRX(1);
+	
+	private SpeedController jaguar1 = new Jaguar(4);
 	
 	private Command autonomousCommand;
 	SendableChooser<Command> autoChooser;
@@ -77,32 +96,25 @@ public class Robot extends IterativeRobot {
 	double PI = 3.14159265359;
 	double Circunferencia = Diametro*PI;
 	
+	
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
 	@Override
 	public void robotInit() {
-	//	gyro = new ADXRS450_Gyro();
 		
-		//Auto1 = new Autonomous1(m_robotDrive, CimCoder, CimCoder2);
-		//autoChooser = new SendableChooser<Command>();
-		//autoChooser.addDefault("Auto 1", Auto1);
-		//autoChooser.addObject("Auto 2", new Autonomous2(Ultri));
-		//autoChooser.addObject("AutoGyro", new AutonomoGyro(m_robotDrive, gyro1));
-		//autoChooser.addObject("AutoGyro450", new Autonomo450(gyro450, m_robotDrive));
+		//CameraServer.getInstance().startAutomaticCapture();
+		autoChooser = new SendableChooser <Command>();
 		autoChooser.addDefault("Auto con robot en una esquina para pasar linea", new AutonomoPosicion1(this));
-		//autoChooser.addObject("AutoPos2", new AutonomoPosicion2(gyro450, m_robotDrive, CimCoder, CimCoder2));
 		autoChooser.addObject("Auto con robot en el medio para pasar linea", new AutonomoPosicion2_1(this));
 		autoChooser.addObject("Auto con robot en el medio para poner cubo", new AutonomoFMS(this));
-		//autoChooser.addObject("AutoMotores1 NO USAAAR PLIS", new AutonomoMotores(motorRight, motorLeft, gyro450));
-		//autoChooser.addObject("Auto3 Counter", new TouchlessEncoder(this));
-		//autoChooser.addObject("Autonomo prueba TOUCHLESS", new AutonomoTouchlessEncoder(this));
 		autoChooser.addObject("Calibrar gyro", new AutonomoCalibrarGyro(this));
 		autoChooser.addObject("Auto desde esquina derecha para poner cubo", new AutonomoPosicion3(this));
 		autoChooser.addObject("Auto desde esquina izquierda para poner cubo", new AutonomoPosicion4(this));
 		autoChooser.addObject("Prueba con el VictorSPX", new AutonomoVictor(this));
-			
+		autoChooser.addObject("Prueba con el Jaguar", new AutonomoJaguar(this));
+		autoChooser.addObject("Prueba con el TalonSRX", new AutonomoTalonSRX(this));	
 		SmartDashboard.putData("Autonomous mode chooser", autoChooser);
 		
 		
@@ -114,8 +126,6 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		/*m_timer.reset();
-		m_timer.start();*/
 		autonomousCommand = (Command) autoChooser.getSelected();
 		System.out.println("Autonomo: " + autonomousCommand.getClass() );
 		autonomousCommand.start();
@@ -128,16 +138,7 @@ public class Robot extends IterativeRobot {
 	public void autonomousPeriodic() {
 		
 		Scheduler.getInstance().run();
-		// Drive for 2 seconds
-		//double distancia = Ultri.getVoltage();
-		//System.out.println(distancia);
-		//double angle = gyro.getAngle();
-		//System.out.println(angle);
-	 /*	if (m_timer.get() < 0.0) {
-			m_robotDrive.arcadeDrive(0.8, 0.0); // drive forwards half speed
-		} else {
-			m_robotDrive.stopMotor(); // stop robot
-		}*/
+		
 	}
 
 	/**
@@ -154,10 +155,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		//m_robotDrive.arcadeDrive(m_stick.getY(), m_stick.getX());
-		//double power = m_stick.getThrottle(); -//Se mueve cn el gatillo derecho
-		//boolean cosita = m_stick.getAButton();
-		//AQUI ESTA EL CODIGO PARA MOVER EL ROBOT CON XBOX 
+		
 		try{
 			double xAxis = (m_stick2.getX(Hand.kRight));
 			double power = -(m_stick2.getY(Hand.kRight));
@@ -245,19 +243,9 @@ public class Robot extends IterativeRobot {
 																										
 		
 		
-		//m_robotDrive.arcadeDrive(powercito, 0);
 		
-		/*
-		if (power > 0 && xAxis == 0) {
-			System.out.println("Esta avanzando al frente");
-		} if (power > 0 && xAxis > 0) {Limelight Camera
-			System.out.println("girando a la derecha");
-		} if (power >0 && xAxis <0 ) {
-			System.out.println("girando a la izquierda");
-		} else {
-			System.out.println("El robot no se esta moviendo");
-		}
-		*/
+	
+
 	/*
 		double powercin = joy.getY(null);
 		double x = joy.getX(null);
@@ -460,8 +448,28 @@ public class Robot extends IterativeRobot {
 	}
 	
 	public void PruebaVictor() {
-		victor1.set(0.3);
-		
+		victor1.set(ControlMode.PercentOutput, .3);		
+	}
+	
+	public void DetenerVictor() {
+		victor1.set(ControlMode.PercentOutput, 0);
+	}
+	
+	public void PruebaJaguar() {
+		jaguar1.set(0.3);
+	}	
+	
+
+	public void DetenerJaguar() {
+		jaguar1.set(0);
+	}
+	
+	public void PruebaTalon() {
+		talon1.set(ControlMode.PercentOutput, 0.3);
+	}
+	
+	public void DetenerTalon() {
+		talon1.set(ControlMode.PercentOutput, 0.0);
 	}
 	
 }
