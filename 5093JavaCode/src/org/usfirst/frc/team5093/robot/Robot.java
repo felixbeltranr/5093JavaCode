@@ -68,9 +68,9 @@ public class Robot extends IterativeRobot {
 	NetworkTableEntry ty = table.getEntry("ty");
 	NetworkTableEntry ta = table.getEntry("ta");
 	
-	private VictorSPX victor1 = new VictorSPX(2);
+	private VictorSPX victor1 = new VictorSPX(2);//2
 	
-	private TalonSRX talon1 = new TalonSRX(1);
+	private TalonSRX talon1 = new TalonSRX(1);//1
 	
 	private SpeedController jaguar1 = new Jaguar(4);
 	
@@ -114,7 +114,8 @@ public class Robot extends IterativeRobot {
 		autoChooser.addObject("Auto desde esquina izquierda para poner cubo", new AutonomoPosicion4(this));
 		autoChooser.addObject("Prueba con el VictorSPX", new AutonomoVictor(this));
 		autoChooser.addObject("Prueba con el Jaguar", new AutonomoJaguar(this));
-		autoChooser.addObject("Prueba con el TalonSRX", new AutonomoTalonSRX(this));	
+		autoChooser.addObject("Prueba con el TalonSRX", new AutonomoTalonSRX(this));
+		autoChooser.addObject("Prueba con el Talon y Victor", new AutonomoTalonVictor(this));
 		SmartDashboard.putData("Autonomous mode chooser", autoChooser);
 		
 		
@@ -148,6 +149,8 @@ public class Robot extends IterativeRobot {
 	public void teleopInit() {
 		//gyro450.calibrate();
 		//gyro450.reset();
+		reverseMotor();
+		System.out.println("Se reverseo");
 	}
 
 	/**
@@ -156,12 +159,25 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		
+		double offset = 0.035;
+		
 		try{
-			double xAxis = (m_stick2.getX(Hand.kRight));
-			double power = -(m_stick2.getY(Hand.kRight));
+			double xAxis = (m_stick.getX(Hand.kRight));
+			double power = -(m_stick.getY(Hand.kRight));
 			//double powercito = power*;
 			//double graditos = gyro450.getAngle();
-			m_robotDrive.curvatureDrive(power, xAxis, true);
+			//m_robotDrive.curvatureDrive(power, xAxis, true);
+			if (xAxis>offset) {
+				talon1.set(ControlMode.PercentOutput, -power);
+				victor1.set(ControlMode.PercentOutput, power);
+				
+			}else if(xAxis<(offset*-1)){
+				talon1.set(ControlMode.PercentOutput, power);
+				victor1.set(ControlMode.PercentOutput, -power);
+			}else {
+				talon1.set(ControlMode.PercentOutput, power);
+				victor1.set(ControlMode.PercentOutput, power);
+			}
 			
 			System.out.println(xAxis + "    Power: " + power);
 			
@@ -463,8 +479,8 @@ public class Robot extends IterativeRobot {
 		}
 
 		while (Touchless.get() < (LecturasMeta*sentido-2)) {
-			talon1.set(ControlMode.PercentOutput, 0.3);
-			victor1.set(ControlMode.PercentOutput, 0.3);
+			talon1.set(ControlMode.PercentOutput, 0.3*sentido);
+			victor1.set(ControlMode.PercentOutput, 0.3*sentido);
 			
 			if(contadorTouchless < Touchless.get()) {
 				
