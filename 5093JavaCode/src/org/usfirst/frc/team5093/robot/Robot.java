@@ -297,6 +297,8 @@ public class Robot extends IterativeRobot {
 		CimCoder.reset();
 		CimCoder2.reset();
 	}
+	
+	
 
 	public void Avanza (double milimetros) {
 		resetEncoders();
@@ -442,13 +444,88 @@ public class Robot extends IterativeRobot {
 			
 	}
 	
+	public void reverseMotor() {
+		talon1.setInverted(true); //Con este metodo los valores postivos puestos en el talon se hacen negativos y viceversa
+	}
+	public void AvanzarTalonVictor(double DistanciaMeta) {
+		Touchless.reset();
+		double LecturasMeta = (DistanciaMeta*12)/Circunferencia;
+		System.out.println(LecturasMeta);
+		double power3 = 0;
+		double sentido = 1;
+		if (DistanciaMeta > 0) {
+			power3 = 0.3;
+			sentido = 1;
+		} 
+		if (DistanciaMeta < 0){
+			power3 = -0.3;
+			sentido = -1;
+		}
+
+		while (Touchless.get() < (LecturasMeta*sentido-2)) {
+			talon1.set(ControlMode.PercentOutput, 0.3);
+			victor1.set(ControlMode.PercentOutput, 0.3);
+			
+			if(contadorTouchless < Touchless.get()) {
+				
+				System.out.println("prueba1   " + Touchless.get());
+				//System.out.println("prueba2   " + prueba2);
+				//System.out.println("prueba3   " + prueba3);
+				contadorTouchless = Touchless.get();
+				}
+		}
+		talon1.set(ControlMode.PercentOutput, 0.0);
+		victor1.set(ControlMode.PercentOutput, 0.0);
+	}
+	
+	public void GirarTalonVictor (double gradosMeta) {     //metodo de sofia que no ha terminado por cierto y esta mal hecho, lo hara el legendario Ulises de la mancha
+		//gyro450.reset();
+		int gradosInt = 0;
+		int sentido = 1;
+		int Contador4 = 0;
+		double powerGiro = 0.65;
+		if(gradosMeta < 0) {//si gira a la derecha sentido es -1. Imaginemos que el talon esta del lado derecho.
+			sentido = -1;
+			powerGiro = 0.8;
+		}
+		//si gira a la derecha, talon necesita valor negativo y victor valor positivo
+		//si gira a la izquierda, talon necesita valor positivo y victor talon negativo
+
+		double angulo = 0.0;
+		while (angulo < gradosMeta*sentido) {
+			talon1.set(ControlMode.PercentOutput, 0.3*sentido);
+			victor1.set(ControlMode.PercentOutput, -0.3*sentido);
+			//angulo = gyro450.getAngle()*sentido;
+			if(gradosInt < (int)angulo) {
+				gradosInt = (int)angulo*sentido;
+				System.out.println(gradosInt);
+			}
+			if (/*(gyro450.getAngle()*sentido) > ((gradosMeta*sentido)-20) &&*/ Contador4 >= 20){
+				powerGiro = powerGiro - (.01*sentido);
+				Contador4 = 0;
+			}
+			
+			if (powerGiro*sentido <= 0.55) {
+				powerGiro = 0.55;
+			}
+			Contador4 = Contador4 + 1;
+		}
+		
+
+		talon1.set(ControlMode.PercentOutput, 0.0);
+		victor1.set(ControlMode.PercentOutput, 0.0);
+	}
+	
+	
+	
+	
 	public void inicializarTouchless() {
 		Touchless.reset();
 		contadorTouchless = 0;	
 	}
 	
 	public void PruebaVictor() {
-		victor1.set(ControlMode.PercentOutput, .3);		
+		victor1.set(ControlMode.PercentOutput, 0.3);		
 	}
 	
 	public void DetenerVictor() {
