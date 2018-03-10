@@ -12,7 +12,7 @@ public class AutonomoTalonVictor extends Command {
 	public AutonomoTalonVictor (Robot robotin) {
 		
 		this.robotin = robotin;
-		
+		//mesa que mas aplauda si
 	}
 	public void initialize(){
 		

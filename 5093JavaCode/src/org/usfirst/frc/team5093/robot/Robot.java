@@ -250,7 +250,7 @@ public class Robot extends IterativeRobot {
 					m_robotDrive.arcadeDrive(1, 0);
 				}
 			} */
-			
+			//que onda perro te activaste el omnitrix
 		
 		}
 		catch(Exception e) {
