@@ -87,7 +87,7 @@ public class Robot extends IterativeRobot {
 	private SpeedController levantaPinza = new Spark (7);
 	
 	private Counter Touchless = new Counter (3);
-	
+	//comentario para subirlo
 	int contadorTouchless = 0;
 	int contadorCim = 0;
 	double PulsePerDistance = 1.27733; //Cantidad de pulsos para 1 milimetro 1.556

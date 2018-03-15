@@ -15,7 +15,7 @@ public class AutonomoTalonVictor extends Command {
 		//mesa que mas aplauda si
 	}
 	public void initialize(){
-		
+		//comentario para subirlo
 		quiza=false;
 		time.reset();
 		time.start();
