@@ -25,14 +25,13 @@ public class AutonomoTalonVictor extends Command {
 	}
 	
 	public void execute() {
-		while (time.get() < 4) {
-			robotin.AvanzarTalonVictor(50);
-			//robotin.GirarTalonVictor(90);
+		
+			//robotin.AvanzarTalonVictor(50);
+			robotin.GirarTalonVictor(90);
 			/*robotin.AvanzarTalonVictor(-50);
 			robotin.GirarTalonVictor(-90);*/
 			System.out.println("Corriendo");
-		}
-		System.out.println("Termino");
+			System.out.println("Termino");
 		quiza=true;
 	}
 	

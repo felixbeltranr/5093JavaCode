@@ -50,7 +50,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  */
 public class Robot extends IterativeRobot {
 	private AnalogGyro gyro1 = new AnalogGyro(0);
-	//private ADXRS450_Gyro gyro450 = new ADXRS450_Gyro();
+	private ADXRS450_Gyro gyro450 = new ADXRS450_Gyro();
 	private AnalogInput Ultri = new AnalogInput(2);
 	
 	private SpeedController motorLeft = new Spark(1);//1
@@ -465,33 +465,41 @@ public class Robot extends IterativeRobot {
 	}
 	public void AvanzarTalonVictor(double DistanciaMeta) {
 		Touchless.reset();
+		contadorTouchless = 0;
 		double LecturasMeta = (DistanciaMeta*12)/Circunferencia;
 		System.out.println(LecturasMeta);
-		double power3 = 0;
+		double powercin = 0.3;
 		double sentido = 1;
+		int contadorcin = 0;
+		
 		if (DistanciaMeta > 0) {
-			power3 = 0.3;
 			sentido = 1;
 		} 
 		if (DistanciaMeta < 0){
-			power3 = -0.3;
 			sentido = -1;
 		}
 
-		while (Touchless.get() < (LecturasMeta*sentido-2)) {
-			talon1.set(ControlMode.PercentOutput, 0.3*sentido);
-			victor1.set(ControlMode.PercentOutput, 0.3*sentido);
+		while (Touchless.get() < (LecturasMeta*sentido)) {
+			talon1.set(ControlMode.PercentOutput, powercin*sentido);
+			victor1.set(ControlMode.PercentOutput, powercin*sentido);
+			contadorcin = contadorcin +1;
 			
 			if(contadorTouchless < Touchless.get()) {
 				
-				System.out.println("prueba1   " + Touchless.get());
-				//System.out.println("prueba2   " + prueba2);
-				//System.out.println("prueba3   " + prueba3);
+				System.out.println("touchless   " + Touchless.get());
+				System.out.println("sentido   " + sentido);
+				System.out.println("power: " + powercin);
+				
 				contadorTouchless = Touchless.get();
 				}
+			if (Touchless.get() > (LecturasMeta*sentido-6) && contadorcin >= 20 && powercin>0.005){
+				powercin = powercin - .003*sentido;
+				contadorcin = 0;
+			}
 		}
 		talon1.set(ControlMode.PercentOutput, 0.0);
 		victor1.set(ControlMode.PercentOutput, 0.0);
+		System.out.println("power: 0");
 	}
 	
 	public void GirarTalonVictor (double gradosMeta) {     //metodo de sofia que no ha terminado por cierto y esta mal hecho, lo hara el legendario Ulises de la mancha
@@ -509,14 +517,14 @@ public class Robot extends IterativeRobot {
 
 		double angulo = 0.0;
 		while (angulo < gradosMeta*sentido) {
-			talon1.set(ControlMode.PercentOutput, 0.3*sentido);
-			victor1.set(ControlMode.PercentOutput, -0.3*sentido);
-			//angulo = gyro450.getAngle()*sentido;
+			talon1.set(ControlMode.PercentOutput, -0.3*sentido);
+			victor1.set(ControlMode.PercentOutput, 0.3*sentido);
+			angulo = gyro450.getAngle()*sentido;
 			if(gradosInt < (int)angulo) {
 				gradosInt = (int)angulo*sentido;
 				System.out.println(gradosInt);
 			}
-			if (/*(gyro450.getAngle()*sentido) > ((gradosMeta*sentido)-20) &&*/ Contador4 >= 20){
+			if ((gyro450.getAngle()*sentido) > ((gradosMeta*sentido)-20) && Contador4 >= 20){
 				powerGiro = powerGiro - (.01*sentido);
 				Contador4 = 0;
 			}
