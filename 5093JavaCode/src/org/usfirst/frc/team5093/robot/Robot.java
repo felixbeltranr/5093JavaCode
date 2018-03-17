@@ -15,13 +15,14 @@ import edu.wpi.first.wpilibj.Counter;
 //import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-//import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PWMVictorSPX;
+import edu.wpi.first.wpilibj.Servo;
 //import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -49,9 +50,10 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  * directory.
  */
 public class Robot extends IterativeRobot {
-	private AnalogGyro gyro1 = new AnalogGyro(0);
+	//private AnalogGyro gyro1 = new AnalogGyro(0);
 	private ADXRS450_Gyro gyro450 = new ADXRS450_Gyro();
 	private AnalogInput Ultri = new AnalogInput(2);
+	private Servo servo1 = new Servo(8);//checar el puerto
 	
 	private SpeedController motorLeft = new Spark(1);//1
 	private SpeedController motorRight = new Spark (0);//0
@@ -91,7 +93,10 @@ public class Robot extends IterativeRobot {
 	int contadorTouchless = 0;
 	int contadorCim = 0;
 	double PulsePerDistance = 1.27733; //Cantidad de pulsos para 1 milimetro 1.556
-
+	
+	double anguloServo = 0;
+	double aumento = 0;
+	
 	double Diametro = 6.0;
 	double PI = 3.14159265359;
 	double Circunferencia = Diametro*PI;
@@ -104,7 +109,7 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void robotInit() {
 		
-		//CameraServer.getInstance().startAutomaticCapture();
+		CameraServer.getInstance().startAutomaticCapture();
 		autoChooser = new SendableChooser <Command>();
 		autoChooser.addDefault("Auto con robot en una esquina para pasar linea", new AutonomoPosicion1(this));
 		autoChooser.addObject("Auto con robot en el medio para pasar linea", new AutonomoPosicion2_1(this));
@@ -151,6 +156,8 @@ public class Robot extends IterativeRobot {
 		//gyro450.reset();
 		reverseMotor();
 		System.out.println("Se reverseo");
+		anguloServo = 0;
+		
 	}
 
 	/**
@@ -160,8 +167,49 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 		
 		double offset = 0.035;
-		
+
 		try{
+
+
+			//Para controlar el servo a un lado de la camara
+			double gradosUlises = m_stick.getY(Hand.kLeft); //Para que lo controle ulises
+
+			boolean arribaMike = m_stick2.getYButton();
+			boolean abajoMike = m_stick2.getAButton();
+			
+			if (gradosUlises > 0.5 || arribaMike == true) {
+				aumento = 1;
+			}
+			if (gradosUlises < -0.5 || abajoMike == true) {
+				aumento = -1;
+			}
+			if (gradosUlises > -0.5 && gradosUlises < 0.5 ) {
+				aumento = 0;
+			}
+			if (arribaMike == true && abajoMike == true) {
+				aumento = 0;
+			}
+			/*if ((arribaMike == true || abajoMike == true) && (gradosUlises != 0)) {
+				aumento = 0;
+			} else {
+				aumento = 0;
+			}
+			*/
+			
+			
+			anguloServo = anguloServo + aumento;
+			System.out.println("grados:   " +  anguloServo + "poder ulises:   " +  gradosUlises);
+			
+			if(anguloServo <= 0) {
+				anguloServo = 0;
+			}
+			if(anguloServo >= 180) {
+				anguloServo = 180;
+			}
+			
+			servo1.setAngle(anguloServo);
+					
+			
 			double xAxis = (m_stick.getX(Hand.kRight));
 			double power = -(m_stick.getY(Hand.kRight));
 			//double powercito = power*;
@@ -179,10 +227,12 @@ public class Robot extends IterativeRobot {
 				victor1.set(ControlMode.PercentOutput, power);
 			}
 			
-			System.out.println(xAxis + "    Power: " + power);
+			//System.out.println(xAxis + "    Power: " + power);
 			
-			double gatilloDDown = m_stick.getTriggerAxis(Hand.kRight); //Con este baja
-			double gatilloDUp = m_stick.getTriggerAxis(Hand.kLeft); //Con este sube
+			
+			//CON ESTO SUBE Y BAJA LAS TIJERAS
+			double gatilloDDown = m_stick2.getTriggerAxis(Hand.kRight); //Con este baja
+			double gatilloDUp = m_stick2.getTriggerAxis(Hand.kLeft); //Con este sube
 			
 			/*if (gatilloDUp > 0 && gatilloDDown > 0) {
 				tijeras.curvatureDrive(0, 0, true);
@@ -197,6 +247,7 @@ public class Robot extends IterativeRobot {
 				tijeras.curvatureDrive(0, 0, true);
 			}*/
 
+			
 			boolean positivo = m_stick.getAButton();
 			boolean negativo = m_stick.getBButton();
 			
@@ -233,8 +284,8 @@ public class Robot extends IterativeRobot {
 			}*/
 			//System.out.println("Lectura " + gatilloDUp + gatilloDDown);
 
-			double pinzas = m_stick.getX(Hand.kLeft);
-			double pinzitas = -1*m_stick.getY(Hand.kRight);
+			double pinzas = m_stick2.getX(Hand.kLeft); //abre y cierra pinzas
+			double pinzitas = -1*m_stick2.getY(Hand.kRight); //sube y baja las pinzas
 			
 			/*if (power2 != 0  ) {
 				anguloJoy = joy.getZ();
@@ -250,7 +301,6 @@ public class Robot extends IterativeRobot {
 					m_robotDrive.arcadeDrive(1, 0);
 				}
 			} */
-			//que onda perro te activaste el omnitrix
 		
 		}
 		catch(Exception e) {
