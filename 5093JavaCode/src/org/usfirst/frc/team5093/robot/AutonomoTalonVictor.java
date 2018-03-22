@@ -21,13 +21,13 @@ public class AutonomoTalonVictor extends Command {
 		time.start();
 		robotin.CalibrarGyro();
 		robotin.ResetGyro();
-		robotin.reverseMotor();
+		//robotin.reverseMotor();
 	}
 	
 	public void execute() {
 		
 			//robotin.AvanzarTalonVictor(50);
-			robotin.GirarTalonVictor(90);
+			//robotin.GirarTalonVictor(90);
 			/*robotin.AvanzarTalonVictor(-50);
 			robotin.GirarTalonVictor(-90);*/
 			System.out.println("Corriendo");

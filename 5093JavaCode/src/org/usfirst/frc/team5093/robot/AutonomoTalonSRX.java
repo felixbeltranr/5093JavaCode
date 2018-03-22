@@ -19,11 +19,11 @@ public class AutonomoTalonSRX extends Command{
 	
 	public void execute() {
 		while (time.get() < 4) {
-			robotin.PruebaTalon();
+			//robotin.PruebaTalon();
 			System.out.println("Corriendo");
 		}
 		System.out.println("Termino");
-		robotin.DetenerTalon();
+		//robotin.DetenerTalon();
 		quiza=true;
 	}
 	

@@ -37,6 +37,8 @@ public class AutonomoFMS extends Command{
 				robotin.Girar(-90);
 				Timer.delay(0.2);
 				robotin.AvanzarTouchless2(-116.2678);
+				Timer.delay(0.2);
+				robotin.DejarCubo();
 				
 			}else {
 				System.out.println("Primer switch de tu color esta a la derecha");
@@ -49,6 +51,7 @@ public class AutonomoFMS extends Command{
 				robotin.Girar(-90);
 				Timer.delay(0.2);
 				robotin.AvanzarTouchless2(111.8585);
+				robotin.DejarCubo();
 				
 			}
 		}

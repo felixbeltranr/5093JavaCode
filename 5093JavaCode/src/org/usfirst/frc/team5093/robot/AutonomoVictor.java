@@ -23,9 +23,9 @@ public class AutonomoVictor extends Command {
 	
 	public void execute() {
 		while (time.get() < 4) {
-			robotin.PruebaVictor();
+			//robotin.PruebaVictor();
 		}
-		robotin.DetenerVictor();
+		//robotin.DetenerVictor();
 		quiza=true;
 	}
 	

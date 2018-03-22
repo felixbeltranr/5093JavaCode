@@ -38,6 +38,7 @@ public class AutonomoPosicion4 extends Command{
 				
 			}else {
 				System.out.println("Primer switch de tu color esta a la izquierda");
+				//EL ROBOT EMPIEZA ALREVES
 				robotin.AvanzarTouchless2(-40);
 				Timer.delay(0.2);
 				robotin.Girar(-90);
@@ -47,6 +48,7 @@ public class AutonomoPosicion4 extends Command{
 				robotin.Girar(90);
 				Timer.delay(0.2);
 				robotin.AvanzarTouchless2(-111.8585);
+				robotin.DejarCubo();
 				
 			}
 		}

@@ -23,14 +23,14 @@ import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj.Servo;
-//import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-//import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-//import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -65,16 +65,20 @@ public class Robot extends IterativeRobot {
 	private Timer TimerTijeras1 = new Timer();
 	private Timer TimerTijeras2 = new Timer();
 	
-	NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+	private Timer TimerBajaCubo = new Timer();
+	private Timer TimerAbrirCubo = new Timer();
+
+	
+	/*NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 	NetworkTableEntry tx = table.getEntry("tx");
 	NetworkTableEntry ty = table.getEntry("ty");
-	NetworkTableEntry ta = table.getEntry("ta");
+	NetworkTableEntry ta = table.getEntry("ta");*/
 	
-	private VictorSPX victor1 = new VictorSPX(2);//2
+	//private VictorSPX victor1 = new VictorSPX(2);//2
 	
-	private TalonSRX talon1 = new TalonSRX(1);//1
+	//private TalonSRX talon1 = new TalonSRX(1);//1
 	
-	private SpeedController jaguar1 = new Jaguar(4);
+	//private SpeedController jaguar1 = new Jaguar(4);
 	
 	private Command autonomousCommand;
 	SendableChooser<Command> autoChooser;
@@ -83,8 +87,8 @@ public class Robot extends IterativeRobot {
 	private Encoder CimCoder = new Encoder(8, 9, true); //6, 7, true); //Izquierdo
 	private Encoder CimCoder2 = new Encoder(4, 5, true); //8, 9, false); //Derecho
 	
-	//private DifferentialDrive tijeras = new DifferentialDrive(new Spark(6), new Spark (7));
-	//private DifferentialDrive tijerasAbajo = new DifferentialDrive(new Spark(2), new Spark (8));
+	private DifferentialDrive tijeras = new DifferentialDrive(new Spark(6), new Spark (7));
+	private DifferentialDrive tijerasAbajo = new DifferentialDrive(new Spark(2), new Spark (8));
 	private SpeedController pinza = new Spark (9);
 	private SpeedController levantaPinza = new Spark (7);
 	
@@ -117,10 +121,10 @@ public class Robot extends IterativeRobot {
 		autoChooser.addObject("Calibrar gyro", new AutonomoCalibrarGyro(this));
 		autoChooser.addObject("Auto desde esquina derecha para poner cubo", new AutonomoPosicion3(this));
 		autoChooser.addObject("Auto desde esquina izquierda para poner cubo", new AutonomoPosicion4(this));
-		autoChooser.addObject("Prueba con el VictorSPX", new AutonomoVictor(this));
-		autoChooser.addObject("Prueba con el Jaguar", new AutonomoJaguar(this));
-		autoChooser.addObject("Prueba con el TalonSRX", new AutonomoTalonSRX(this));
-		autoChooser.addObject("Prueba con el Talon y Victor", new AutonomoTalonVictor(this));
+		//autoChooser.addObject("Prueba con el VictorSPX", new AutonomoVictor(this));
+		//autoChooser.addObject("Prueba con el Jaguar", new AutonomoJaguar(this));
+		//autoChooser.addObject("Prueba con el TalonSRX", new AutonomoTalonSRX(this));
+		//autoChooser.addObject("Prueba con el Talon y Victor", new AutonomoTalonVictor(this));
 		SmartDashboard.putData("Autonomous mode chooser", autoChooser);
 		
 		
@@ -154,7 +158,7 @@ public class Robot extends IterativeRobot {
 	public void teleopInit() {
 		//gyro450.calibrate();
 		//gyro450.reset();
-		reverseMotor();
+		//reverseMotor();
 		System.out.println("Se reverseo");
 		anguloServo = 0;
 		
@@ -195,8 +199,7 @@ public class Robot extends IterativeRobot {
 				aumento = 0;
 			}
 			*/
-			
-			
+
 			anguloServo = anguloServo + aumento;
 			System.out.println("grados:   " +  anguloServo + "poder ulises:   " +  gradosUlises);
 			
@@ -212,10 +215,13 @@ public class Robot extends IterativeRobot {
 			
 			double xAxis = (m_stick.getX(Hand.kRight));
 			double power = -(m_stick.getY(Hand.kRight));
-			//double powercito = power*;
-			//double graditos = gyro450.getAngle();
-			//m_robotDrive.curvatureDrive(power, xAxis, true);
-			if (xAxis>offset) {
+			double graditos = gyro450.getAngle();
+			m_robotDrive.curvatureDrive(power, xAxis, true);
+			
+			
+			//ESTO ES PARA EL TALON Y EL VICTOR
+			
+			/*if (xAxis>offset) {
 				talon1.set(ControlMode.PercentOutput, -power);
 				victor1.set(ControlMode.PercentOutput, power);
 				
@@ -225,7 +231,7 @@ public class Robot extends IterativeRobot {
 			}else {
 				talon1.set(ControlMode.PercentOutput, power);
 				victor1.set(ControlMode.PercentOutput, power);
-			}
+			}*/
 			
 			//System.out.println(xAxis + "    Power: " + power);
 			
@@ -234,7 +240,7 @@ public class Robot extends IterativeRobot {
 			double gatilloDDown = m_stick2.getTriggerAxis(Hand.kRight); //Con este baja
 			double gatilloDUp = m_stick2.getTriggerAxis(Hand.kLeft); //Con este sube
 			
-			/*if (gatilloDUp > 0 && gatilloDDown > 0) {
+			if (gatilloDUp > 0 && gatilloDDown > 0) {
 				tijeras.curvatureDrive(0, 0, true);
 			}
 			else if (gatilloDDown>0) {
@@ -245,11 +251,11 @@ public class Robot extends IterativeRobot {
 			}
 			else {
 				tijeras.curvatureDrive(0, 0, true);
-			}*/
+			}
 
 			
-			boolean positivo = m_stick.getAButton();
-			boolean negativo = m_stick.getBButton();
+			//boolean positivo = m_stick.getAButton();
+			//boolean negativo = m_stick.getBButton();
 			
 			/*if (positivo == true && negativo == true) {
 				
@@ -281,8 +287,8 @@ public class Robot extends IterativeRobot {
 			else {
 				tijerasArriba.curvatureDrive(0, 0, true);
 				tijerasAbajo.curvatureDrive(0, 0, true);
-			}*/
-			//System.out.println("Lectura " + gatilloDUp + gatilloDDown);
+			}
+			System.out.println("Lectura " + gatilloDUp + gatilloDDown);*/
 
 			double pinzas = m_stick2.getX(Hand.kLeft); //abre y cierra pinzas
 			double pinzitas = -1*m_stick2.getY(Hand.kRight); //sube y baja las pinzas
@@ -302,6 +308,7 @@ public class Robot extends IterativeRobot {
 				}
 			} */
 		
+			
 		}
 		catch(Exception e) {
 			//System.out.println("error: " + e.getMessage() );
@@ -341,9 +348,9 @@ public class Robot extends IterativeRobot {
 		TimerTijeras1.start();
 		
 		 while (TimerTijeras1.get() < segundos) {
-		//tijeras.curvatureDrive(0, -1, true);
+		tijeras.curvatureDrive(0, -1, true);
 	}
-		 //tijeras.curvatureDrive(0, 0, true);
+		 tijeras.curvatureDrive(0, 0, true);
 	}
 	
 	public double getAverageEncoderPosition() {
@@ -377,15 +384,15 @@ public class Robot extends IterativeRobot {
 
 	
 	public void ResetGyro () {
-		//gyro450.reset();
+		gyro450.reset();
 	}
 	
 	public void CalibrarGyro () {
-		//gyro450.calibrate();
+		gyro450.calibrate();
 	}
 	
 	public void Girar (double gradosMeta) {     //metodo de sofia que no ha terminado por cierto y esta mal hecho, lo hara el legendario Ulises de la mancha
-		//gyro450.reset();
+		gyro450.reset();
 		int gradosInt = 0;
 		int sentido = 1;
 		int Contador4 = 0;
@@ -398,12 +405,12 @@ public class Robot extends IterativeRobot {
 		double angulo = 0.0;
 		while (angulo < gradosMeta*sentido) {
 			m_robotDrive.curvatureDrive(0.0, sentido*powerGiro, true);
-			//angulo = gyro450.getAngle()*sentido;
+			angulo = gyro450.getAngle()*sentido;
 			if(gradosInt < (int)angulo) {
 				gradosInt = (int)angulo*sentido;
 				System.out.println(gradosInt);
 			}
-			if (/*(gyro450.getAngle()*sentido) > ((gradosMeta*sentido)-20) &&*/ Contador4 >= 20){
+			if ((gyro450.getAngle()*sentido) > ((gradosMeta*sentido)-20) && Contador4 >= 20){
 				powerGiro = powerGiro - (.01*sentido);
 				Contador4 = 0;
 			}
@@ -489,7 +496,7 @@ public class Robot extends IterativeRobot {
 		}
 		
 		while (Touchless.get() < (Meta*sentido)) {
-			m_robotDrive.curvatureDrive(powercin, 0.0, true);
+			m_robotDrive.curvatureDrive(powercin, 0.3, true);
 			Contadorcin = Contadorcin + 1;
 			
 			if(contadorTouchless < Touchless.get()) {
@@ -510,10 +517,25 @@ public class Robot extends IterativeRobot {
 			
 	}
 	
-	public void reverseMotor() {
-		talon1.setInverted(true); //Con este metodo los valores postivos puestos en el talon se hacen negativos y viceversa
+	public void DejarCubo () {
+		TimerBajaCubo.reset();
+		TimerBajaCubo.start();
+		while (TimerBajaCubo.get() < 1) {
+			levantaPinza.set(-0.3); //Baja las pinzas
+		}
+		levantaPinza.set(0);
+		
+		TimerAbrirCubo.reset();
+		TimerAbrirCubo.start();
+		while (TimerAbrirCubo.get() < 1) {
+		pinza.set(0.3); //Abre pinzas
+		}
+		pinza.set(0);
 	}
-	public void AvanzarTalonVictor(double DistanciaMeta) {
+	//public void reverseMotor() {
+		//talon1.setInverted(true); //Con este metodo los valores postivos puestos en el talon se hacen negativos y viceversa
+	//}
+	/*public void AvanzarTalonVictor(double DistanciaMeta) {
 		Touchless.reset();
 		contadorTouchless = 0;
 		double LecturasMeta = (DistanciaMeta*12)/Circunferencia;
@@ -588,7 +610,7 @@ public class Robot extends IterativeRobot {
 
 		talon1.set(ControlMode.PercentOutput, 0.0);
 		victor1.set(ControlMode.PercentOutput, 0.0);
-	}
+	}*/
 	
 	
 	
@@ -598,7 +620,7 @@ public class Robot extends IterativeRobot {
 		contadorTouchless = 0;	
 	}
 	
-	public void PruebaVictor() {
+	/*public void PruebaVictor() {
 		victor1.set(ControlMode.PercentOutput, 0.3);		
 	}
 	
@@ -621,6 +643,6 @@ public class Robot extends IterativeRobot {
 	
 	public void DetenerTalon() {
 		talon1.set(ControlMode.PercentOutput, 0.0);
-	}
+	}*/
 	
 }

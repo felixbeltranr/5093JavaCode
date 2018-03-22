@@ -43,6 +43,7 @@ public class AutonomoPosicion3 extends Command{
 				robotin.Girar(90);
 				Timer.delay(0.2);
 				robotin.AvanzarTouchless2(111.8585);
+				robotin.DejarCubo();
 				
 			}
 		}

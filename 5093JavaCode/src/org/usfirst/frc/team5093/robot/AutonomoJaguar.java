@@ -22,11 +22,11 @@ public class AutonomoJaguar extends Command {
 	
 	public void execute() {
 		while (time.get() < 4) {
-			robotin.PruebaJaguar();
+			//robotin.PruebaJaguar();
 			System.out.println("Corriendo");
 		}
 		System.out.println("Termino");
-		robotin.DetenerJaguar();
+		//robotin.DetenerJaguar();
 		quiza=true;
 	}
 		
